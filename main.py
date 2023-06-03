@@ -5,7 +5,7 @@ from msal import ConfidentialClientApplication
 
 load_dotenv()
 
-TENANT_ID = os.getenv('RALLY_TENANT_ID')
+TENANT_ID = os.getenv('TENANT_ID')
 APP_ID = os.getenv('PBI_CLIENT_ID')
 APP_SECRET = os.getenv('PBI_CLIENT_SECRET')
 GROUP_ID = os.getenv('GROUP_ID')
@@ -25,11 +25,27 @@ if 'access_token' not in result:
     exit(1)
 access_token = result['access_token']
 
+print(access_token)
+
 headers = {
     'Authorization': f'Bearer {access_token}',
     'Content-Type': 'application/json',
 }
 
-# response = requests.post(url=API_ENDPOINT, headers=headers)
-response = requests.get("https://api.powerbi.com/v1.0/myorg/groups/{GROUP_ID}/datasets", headers=headers)
-print(f'{response.status_code}\n{response.text}')
+
+groups = requests.get("https://api.powerbi.com/v1.0/myorg/groups", headers=headers)
+# print(f'{groups.status_code}\n{groups.json()}')
+
+for group in groups.json()['value']:
+    gid = group.get('id')
+    # print(gid, group.get('name'))
+    datasets = requests.get(f"https://api.powerbi.com/v1.0/myorg/groups/{gid}/datasets", headers=headers)
+    for dataset in datasets.json()['value']:
+        # print(f'\t{dataset.get("name")}')
+        if dataset.get("name") == 'ARL Balanced Scorecard':
+            print(dataset_id := dataset.get("id"))
+            refresh = requests.post( f'https://api.powerbi.com/v1.0/myorg/groups/{gid}/datasets/{dataset_id}/refreshes', headers=headers)
+            print(refresh.status_code)
+            print(refresh.text)
+        
+    
