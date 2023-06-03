@@ -42,7 +42,7 @@ for group in groups.json()['value']:
     datasets = requests.get(f"https://api.powerbi.com/v1.0/myorg/groups/{gid}/datasets", headers=headers)
     for dataset in datasets.json()['value']:
         # print(f'\t{dataset.get("name")}')
-        if dataset.get("name") == 'ARL Balanced Scorecard':
+        if dataset.get("name") == 'Test':
             print(dataset_id := dataset.get("id"))
             refresh = requests.post( f'https://api.powerbi.com/v1.0/myorg/groups/{gid}/datasets/{dataset_id}/refreshes', headers=headers)
             print(refresh.status_code)
